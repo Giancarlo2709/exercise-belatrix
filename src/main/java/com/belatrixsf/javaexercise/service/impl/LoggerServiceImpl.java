@@ -56,7 +56,7 @@ public class LoggerServiceImpl implements LoggerService {
 
         //valid level
         if (!validateLevel(level))
-            return;
+            throw new LoggerException(MessageUtil.LEVEL_SPECIFIED);
 
         messageText = getFormatMessage(messageText, level);
 
