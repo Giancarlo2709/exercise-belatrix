@@ -17,22 +17,22 @@ public class HandlerUtil {
     private FileHandler fileHandler;
     private ConsoleHandler consoleHandler;
 
-    @Value("${properties.logger.name-log}")
-    private String nameLog;
+    private Logger logger = Logger.getLogger(MessageUtil.NAME_LOG);
 
-    private Logger logger = Logger.getLogger(nameLog);
-
-    @Value("${properties.logger.file-log}")
+    /*@Value("${exercise.logger.file.log}")
     private Boolean logToFile;
 
-    @Value("${properties.logger.console-log}")
+    @Value("${exercise.logger.console.log}")
     private Boolean logToConsole;
 
-    @Value("${properties.logger.file-path}")
-    private String filePath;
+    @Value("${exercise.logger.file.path}")
+    private String filePath;*/
 
-    public HandlerUtil(){
+    public HandlerUtil(@Value("${exercise.logger.file.path}") String filePath,
+                       @Value("${exercise.logger.file.log}") Boolean logToFile,
+                       @Value("${exercise.logger.console.log}") Boolean logToConsole){
         try {
+            System.out.println(filePath);
             File file = new File(filePath);
             if(!file.exists()){
                 file.createNewFile();

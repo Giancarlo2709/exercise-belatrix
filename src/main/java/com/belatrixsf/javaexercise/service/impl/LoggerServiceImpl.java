@@ -10,33 +10,35 @@ import com.belatrixsf.javaexercise.util.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Objects;
 
 @Service
+@Transactional
 public class LoggerServiceImpl implements LoggerService {
 
     private final LoggerDao loggerDao;
     private final HandlerUtil handlerUtil;
 
-    @Value("${properties.logger.database-log}")
+    @Value("${exercise.logger.database.log}")
     private Boolean logToDatabase;
 
-    @Value("${properties.logger.file-log}")
+    @Value("${exercise.logger.file.log}")
     private Boolean logToFile;
 
-    @Value("${properties.logger.console-log}")
+    @Value("${exercise.logger.console.log}")
     private Boolean logToConsole;
 
-    @Value("${properties.logger.message-log}")
+    @Value("${exercise.logger.message.log}")
     private Boolean logMessage;
 
-    @Value("${properties.logger.warning-log}")
+    @Value("${exercise.logger.warning.log}")
     private Boolean logWarning;
 
-    @Value("${properties.logger.error-log}")
+    @Value("${exercise.logger.error.log}")
     private Boolean logError;
 
     @Autowired
@@ -47,12 +49,12 @@ public class LoggerServiceImpl implements LoggerService {
 
     @Override
     public void logMessage(String messageText, Integer level) throws LoggerException {
-        if (!(Objects.nonNull(messageText) && messageText.trim().isEmpty())) {
+        if (!(Objects.nonNull(messageText) && !messageText.trim().isEmpty())) {
             return;
         }
 
         //valid configuration
-        validateConfiguration(level);
+        validateConfiguration();
 
         //valid level
         if (!validateLevel(level))
@@ -68,13 +70,10 @@ public class LoggerServiceImpl implements LoggerService {
         handlerUtil.saveLogFile(messageText, level);
     }
 
-    private void validateConfiguration(Integer level)throws LoggerException {
+    private void validateConfiguration()throws LoggerException {
         if(!(logToDatabase && logToConsole && logToFile)){
             throw new LoggerException(MessageUtil.INVALID_CONFIGURATION);
         }
-
-        validateLevel(level);
-
     }
 
     private Boolean validateLevel(Integer level) {
@@ -93,9 +92,9 @@ public class LoggerServiceImpl implements LoggerService {
     private String getFormatMessage(String messageText, Integer level) {
         Level levelEnum = Level.getCode(level);
         if(Objects.nonNull(levelEnum)){
-            return levelEnum.getValue() + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+            return levelEnum.getValue() + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " - " + messageText;
         } else
-            return Level.ERROR.getValue() + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + messageText;
+            return Level.ERROR.getValue() + DateFormat.getDateInstance(DateFormat.LONG).format(new Date()) + " - " + messageText;
     }
 
     private Logger saveLogger(String messageText, Integer level){
